@@ -1,21 +1,7 @@
 #!/bin/sh -e
-# "-e" exists on first error.
-
-sudo apt-get install libpng-dev \
-                libfreetype6 \
-				libfreetype6-dev \
-				python3-dev \
-				python3-simplejson \
-				python3-pyqt4 \
-				python3-numpy \
-				python3-scipy \
-				python3-matplotlib \
-				libgeos-dev \
-				python-shapely \
-				python-pip \
-				libspatialindex-dev \
-				python3-tk \
-				python3-shapely \
-				python3-rtree \
-				python3-svg.path
-
+# Requires Python 3.13, its venv module, and matching Tcl/Tk support.
+cd "$(dirname "$0")"
+sudo apt-get install -y libgl1 libegl1 libglu1-mesa libxkbcommon-x11-0 libxcb-cursor0
+python3.13 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install -r requirements.txt

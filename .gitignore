@@ -1,3 +1,9 @@
 *.pyc
 .idea/
 tests/tmp/
+build/
+.venv/
+__pycache__/
+.pytest_cache/
+*.log
+.claude/settings.local.json

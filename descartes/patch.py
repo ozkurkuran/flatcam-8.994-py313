@@ -12,14 +12,18 @@ class Polygon(object):
             self.context = context
         else:
             self.context = getattr(context, '__geo_interface__', context)
+
     @property
     def geom_type(self):
         return (getattr(self.context, 'geom_type', None)
                 or self.context['type'])
+
     @property
     def exterior(self):
-        return (getattr(self.context, 'exterior', None) 
-                or self.context['coordinates'][0])
+        if hasattr(self.context, 'exterior'):
+            return self.context.exterior
+        return self.context['coordinates'][0]
+
     @property
     def interiors(self):
         value = getattr(self.context, 'interiors', None)
@@ -33,19 +37,21 @@ def PolygonPath(polygon):
     geometric object"""
     this = Polygon(polygon)
     assert this.geom_type == 'Polygon'
+
     def coding(ob):
         # The codes will be all "LINETO" commands, except for "MOVETO"s at the
         # beginning of each subpath
-        n = len(getattr(ob, 'coords', None) or ob)
+        n = len(ob.coords if hasattr(ob, 'coords') else ob)
         vals = ones(n, dtype=Path.code_type) * Path.LINETO
-        vals[0] = Path.MOVETO
+        if n:
+            vals[0] = Path.MOVETO
         return vals
-    vertices = concatenate(
-                    [asarray(this.exterior)] 
-                    + [asarray(r) for r in this.interiors])
-    codes = concatenate(
-                [coding(this.exterior)] 
-                + [coding(r) for r in this.interiors])
+
+    def coordinates(ring):
+        return asarray(ring.coords if hasattr(ring, 'coords') else ring, dtype=float).reshape(-1, 2)
+
+    vertices = concatenate([coordinates(this.exterior)] + [coordinates(r) for r in this.interiors])
+    codes = concatenate([coding(this.exterior)] + [coding(r) for r in this.interiors])
     return Path(vertices, codes)
 
 
