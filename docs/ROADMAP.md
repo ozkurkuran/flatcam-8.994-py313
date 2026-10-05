@@ -16,6 +16,7 @@ geçerlidir.
 | K3 | Makine kontrolü | **GRBL + Serial** yeterli. Mach3 ileride düşünülebilir (aşağıdaki nota bakın). |
 | K4 | Öncelik | Önce ilk gerçek lazer PCB'ye giden kısa yol; ardından mekanik CAM stabilizasyonu ve GRBL kontrolü. |
 | K5 | Sona ertelenenler | Arayüzün baştan tasarımı (Faz 3), feature flag sistemi, termal zamanlayıcı, galvo kontrolü. |
+| K6 | Genel görsel lazer akışı (02.10.2026) | KiCad/Gerber zorunlu değil: bitmap ve SVG, ayrıca seçilen PDF sayfası ortak 1-bit maskeye dönüştürülür; interlace parçaları tek LightBurn projesine aktarılır. [Mimari ve uygulama planı](design/visual-interlace/README.md). |
 
 ## Orijinal yol haritasından farklar
 
@@ -76,6 +77,29 @@ gerçek PCB elde edilir.
 | 6 | `laser-contour-hatch` | Contour modları (dış, iç, iz, pad, kart kenarı); açılı hatch ve cross-hatch; clipping. Evo'ya bağlanan Laser CAM paneli ve kanvas önizlemesi. | 5 |
 | 7 | `hatch-interlace-multipass` | Interlace N; pass başına güç, frekans, pulse genişliği ve hız | 6 |
 | 8 | `laser-export-svg-dxf` | LightBurn ve EZCAD'e aktarılabilir SVG/DXF; her pass ayrı katman/renk ya da ayrı dosya olarak | 7 |
+
+### 0.2A — Genel görsel interlace ve LightBurn projesi
+
+**02.10.2026 kapsam genişlemesi:** Bitmap/SVG/PDF kaynakları Gerber contour/hatch akışını
+beklemeden kullanılabilir. Bu dalın hedefi SVG/DXF aktarımından farklı olarak, aynı tuvale
+sahip tamamlayıcı bitmap'leri ayrı Image katmanlarında taşıyan tek `.lbrn2` projesidir.
+Mevcut 6–8 numaralı vektör özellikleri korunur; 7'nin satır gruplama mantığı gerektiğinde aynı
+saf interlace fonksiyonunu kullanır, raster ve vektör temsil biçimleri birleştirilmez.
+
+Detaylar: [spec, mimari, veri sözleşmeleri, görevler ve testler](design/visual-interlace/README.md).
+V1–V4 sembolik dilim adlarıdır; hedef Evo deposunda spec-kit numaraları ayrıca atanır.
+
+| Dilim | Kısa ad | Kapsam | Bağımlılık |
+| --- | --- | --- | --- |
+| V1 | `visual-mask-interlace` | Yaygın bitmap dosyaları, mm/DPI/eşik, tek ana maske, N=1..8 tamamlayıcı görüntü, önizleme, PNG ve sürümlü iş/proje kaydı | 2, 4, 5 |
+| V2 | `visual-svg-pdf` | Statik SVG render; PDF'den seçilen sayfayı rasterleme; isteğe bağlı Gerber/Geometry kaynak adaptörü | V1 |
+| V3 | `lightburn-image-project` | Gömülü resimler, ayrı Image katmanları, ortak ölçü/konum, sıra ve gerçek LightBurn aç/kaydet/önizleme kabulü | V1; tam görsel teslimde V2 |
+| V4 | `interlace-cycle-controls` | Tam tur tekrarı, deterministik tur sırası ve desteklenen profilde geçişler arası bekleme | V3 |
+
+LightBurn dosya biçimi ve cihaz profili keşfi V1 başlangıcında yapılır; V3 sonuna bırakılmaz.
+Temel PDF desteği görünüm rasterleştirmesidir; aşağıdaki `pdf-vector-import` ve OCR anlamına
+gelmez. Doğrudan galvo kontrolü ve termal zamanlayıcı ertelenmiş kalır. Her dilim kendi spec'i,
+en fazla üç hikâyesi ve kırktan az görevi ile uygulanır.
 
 ### 0.3 — Güvenilir mekanik CAM
 

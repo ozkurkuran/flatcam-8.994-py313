@@ -22,6 +22,14 @@ For a console with diagnostic messages:
 
 The tested Python patch version is recorded in `.python-version`. Runtime dependencies are pinned in `requirements.txt`. Rasterio wheels supply their own GDAL runtime; FlatCAM does not import `osgeo`. Qt 6 handles high-DPI scaling automatically. VisPy uses the PyQt6 backend and its current built-in rendering support.
 
+## Practice examples
+
+Three practice boards with matching Gerber, outline and Excellon files are available
+in `assets/examples/practice`. See the [Turkish exercise guide](assets/examples/README.md)
+for tasks and expected results. Run `assets/examples/practice_01.FlatScript`,
+`practice_02.FlatScript` or `practice_03.FlatScript` through **File → Scripting → Run Script**
+in an MM project to load a board and generate isolation and cutout geometry.
+
 ## Checks
 
 ```powershell
